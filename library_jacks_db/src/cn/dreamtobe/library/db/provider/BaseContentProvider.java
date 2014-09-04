@@ -32,10 +32,10 @@ public abstract class BaseContentProvider extends ContentProvider {
 
 	public static UriMatcher sUriMatcher;
 
-	protected HashMap<String, BaseTBHelper> mAllTableHelper;
+	protected HashMap<String, BaseTableHelper> mAllTableHelper;
 
 	protected SparseArray<String> mCodeType;
-	protected SparseArray<BaseTBHelper> mCodeTBHelper;
+	protected SparseArray<BaseTableHelper> mCodeTBHelper;
 
 	public BaseContentProvider(final String authority) {
 		this.mAuthority = authority;
@@ -52,21 +52,21 @@ public abstract class BaseContentProvider extends ContentProvider {
 		return "content://" + authority + "/";
 	}
 
-	private void initUriMatcher(final String authority, final HashMap<String, BaseTBHelper> tableHelpers) {
+	private void initUriMatcher(final String authority, final HashMap<String, BaseTableHelper> tableHelpers) {
 		if (TextUtils.isEmpty(authority) || tableHelpers == null || tableHelpers.size() <= 0) {
 			return;
 		}
 
 		sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 		mCodeType = new SparseArray<String>();
-		mCodeTBHelper = new SparseArray<BaseTBHelper>();
+		mCodeTBHelper = new SparseArray<BaseTableHelper>();
 
 		int code = 0;
 
 		for (Iterator it = tableHelpers.entrySet().iterator(); it.hasNext();) {
 			Map.Entry entry = (Map.Entry) it.next();
 			String tableName = (String) entry.getKey();
-			BaseTBHelper tableHelper = (BaseTBHelper) entry.getValue();
+			BaseTableHelper tableHelper = (BaseTableHelper) entry.getValue();
 
 			mCodeType.put(code, tableHelper.getContentType(authority));
 			mCodeTBHelper.put(code, tableHelper);
@@ -85,7 +85,7 @@ public abstract class BaseContentProvider extends ContentProvider {
 		return mCodeType.get(sUriMatcher.match(uri));
 	}
 
-	protected abstract HashMap<String, BaseTBHelper> createAllTableHelper();
+	protected abstract HashMap<String, BaseTableHelper> createAllTableHelper();
 
 	@Override
 	public boolean onCreate() {
@@ -136,7 +136,7 @@ public abstract class BaseContentProvider extends ContentProvider {
 		for (Iterator it = mAllTableHelper.entrySet().iterator(); it.hasNext();) {
 			Map.Entry entry = (Map.Entry) it.next();
 			String tableName = (String) entry.getKey();
-			BaseTBHelper tableHelper = (BaseTBHelper) entry.getValue();
+			BaseTableHelper tableHelper = (BaseTableHelper) entry.getValue();
 
 			tableHelper.onDataBaseCreate(db);
 		}
@@ -156,7 +156,7 @@ public abstract class BaseContentProvider extends ContentProvider {
 
 		for (Iterator it = mAllTableHelper.keySet().iterator(); it.hasNext();) {
 			String tableName = (String) it.next();
-			BaseTBHelper tableHelper = mAllTableHelper.get(tableName);
+			BaseTableHelper tableHelper = mAllTableHelper.get(tableName);
 
 			tableHelper.onDatabaseUpgrade(oldVersion, newVersion, db);
 		}
@@ -193,7 +193,7 @@ public abstract class BaseContentProvider extends ContentProvider {
 		String tableName = null;
 		final int matcher = sUriMatcher.match(uri);
 
-		final BaseTBHelper tableHelper = mCodeTBHelper.get(matcher);
+		final BaseTableHelper tableHelper = mCodeTBHelper.get(matcher);
 		final String type = mCodeType.get(matcher);
 
 		Cursor c = null;
@@ -232,7 +232,7 @@ public abstract class BaseContentProvider extends ContentProvider {
 		String tableName;
 		long rowId;
 
-		final BaseTBHelper tableHelper = mCodeTBHelper.get(matcher);
+		final BaseTableHelper tableHelper = mCodeTBHelper.get(matcher);
 
 		do {
 			if (tableHelper == null) {
@@ -259,7 +259,7 @@ public abstract class BaseContentProvider extends ContentProvider {
 		SQLiteDatabase db = getWritableDatabase();
 		int count = 0;
 
-		final BaseTBHelper tableHelper = mCodeTBHelper.get(matcher);
+		final BaseTableHelper tableHelper = mCodeTBHelper.get(matcher);
 
 		if (tableHelper == null) {
 			throw new IllegalArgumentException("Unknown Uri: " + uri + " Matcher : " + matcher);
@@ -279,7 +279,7 @@ public abstract class BaseContentProvider extends ContentProvider {
 		ContentValues initValues = values == null ? new ContentValues() : new ContentValues(values);
 		int matcher = sUriMatcher.match(uri);
 
-		final BaseTBHelper tableHelper = mCodeTBHelper.get(matcher);
+		final BaseTableHelper tableHelper = mCodeTBHelper.get(matcher);
 
 		if (tableHelper == null) {
 			throw new IllegalArgumentException("Unknown Uri: " + uri);

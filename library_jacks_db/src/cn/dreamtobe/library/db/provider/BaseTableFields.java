@@ -14,12 +14,12 @@ import android.provider.BaseColumns;
 import android.text.TextUtils;
 
 /**
- * 描述:基本字段
+ * Table Fields
  * 
  * @author Jacks gong
  * @since 2014-7-20 下午12:14:43
  */
-public abstract class BaseDBColumns implements BaseColumns, Serializable {
+public abstract class BaseTableFields implements BaseColumns, Serializable {
 
 	protected HashMap<String, Object> mColumnValues = new HashMap<String, Object>();
 	/**
@@ -32,15 +32,15 @@ public abstract class BaseDBColumns implements BaseColumns, Serializable {
 	 */
 	public static final String MODIFIED_AT = "modifiedAt";
 
-	public BaseDBColumns() {
+	public BaseTableFields() {
 
 	}
 
-	public BaseDBColumns(final Cursor c) {
+	public BaseTableFields(final Cursor c) {
 		put(c);
 	}
 
-	public BaseDBColumns(final HashMap<String, Object> values) {
+	public BaseTableFields(final HashMap<String, Object> values) {
 		this.mColumnValues = values;
 	}
 

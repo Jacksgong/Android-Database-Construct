@@ -2,7 +2,7 @@ package cn.dreamtobe.library.db.provider;
 
 import java.util.List;
 
-import cn.dreamtobe.library.db.provider.BaseDBColumns.SQLString;
+import cn.dreamtobe.library.db.provider.BaseTableFields.SQLString;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -13,30 +13,30 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 /**
- * 数据库表操作
+ * Table Operator
  * 
  * @author Jacks gong
  */
-public abstract class BaseDBOperator<T extends BaseDBColumns, HELPER extends BaseTBHelper> {
+public abstract class BaseTableOperator<FIELDS extends BaseTableFields, HELPER extends BaseTableHelper> {
 
 	private Context mContext;
 
 	private HELPER mHelper;
 
-	public BaseDBOperator(Context context, HELPER helper) {
+	public BaseTableOperator(Context context, HELPER helper) {
 		mContext = context;
 		mHelper = helper;
 	}
 
 	/**
-	 * 新增
+	 * insert
 	 * 
-	 * @param t
+	 * @param f
 	 * @return
 	 */
-	public long insert(T t) {
+	public long insert(FIELDS f) {
 		ContentValues cv = new ContentValues();
-		t.setValues(cv);
+		f.setValues(cv);
 		Uri uri = getContentResolver().insert(getUri(), cv);
 		if (uri != null) {
 			return ContentUris.parseId(uri);
@@ -45,7 +45,7 @@ public abstract class BaseDBOperator<T extends BaseDBColumns, HELPER extends Bas
 	}
 
 	/**
-	 * 更新
+	 * update
 	 * 
 	 * @param t
 	 * @param selection
@@ -56,18 +56,18 @@ public abstract class BaseDBOperator<T extends BaseDBColumns, HELPER extends Bas
 		return getContentResolver().update(getUri(), cv, selection, selectionArgs);
 	}
 
-	public long update(final Object primaryValue, final T t) {
+	public long update(final Object primaryValue, final FIELDS t) {
 		if (t == null) {
 			return -1;
 		}
 
 		ContentValues cv = new ContentValues();
 		t.setValues(cv);
-		return update(cv, getTBHelper().getPrimaryKey() + "=?", new String[] { String.valueOf(primaryValue) });
+		return update(cv, getTableHelper().getPrimaryKey() + "=?", new String[] { String.valueOf(primaryValue) });
 	}
 
 	/**
-	 * 删除
+	 * delete
 	 * 
 	 * @param selection
 	 * @param selectionArgs
@@ -82,23 +82,23 @@ public abstract class BaseDBOperator<T extends BaseDBColumns, HELPER extends Bas
 			return -1;
 		}
 
-		return delete(getTBHelper().getPrimaryKey() + "=?", new String[] { String.valueOf(primaryValue) });
+		return delete(getTableHelper().getPrimaryKey() + "=?", new String[] { String.valueOf(primaryValue) });
 	}
 
 	/**
-	 * 查询
+	 * search
 	 * 
 	 * @param selection
 	 * @param selectionArgs
 	 * @param orderby
 	 * @return
 	 */
-	public List<T> query(String selection, String[] selectionArgs, String orderby) {
+	public List<FIELDS> query(String selection, String[] selectionArgs, String orderby) {
 		return query(selection, selectionArgs, orderby, 0);
 	}
 
 	/**
-	 * 查询
+	 * search
 	 * 
 	 * @param selection
 	 * @param selectionArgs
@@ -106,16 +106,16 @@ public abstract class BaseDBOperator<T extends BaseDBColumns, HELPER extends Bas
 	 * @param limit
 	 * @return
 	 */
-	public List<T> query(String selection, String[] selectionArgs, String orderby, int limit) {
+	public List<FIELDS> query(String selection, String[] selectionArgs, String orderby, int limit) {
 		if (limit > 0) {
 			if (orderby == null) {
-				orderby = getTBHelper().getDefaultSortOrder();
+				orderby = getTableHelper().getDefaultSortOrder();
 			}
 			orderby += (" limit " + limit);
 		}
 		Cursor c = getContentResolver().query(getUri(), null, selection, selectionArgs, orderby);
 
-		List<T> list = null;
+		List<FIELDS> list = null;
 		try {
 			list = createColumns(c);
 		} catch (Exception e) {
@@ -129,14 +129,14 @@ public abstract class BaseDBOperator<T extends BaseDBColumns, HELPER extends Bas
 	}
 
 	/**
-	 * 查询
+	 * search
 	 * 
 	 * @param selection
 	 * @param selectionArgs
 	 * @return
 	 */
-	public T query(String selection, String[] selectionArgs) {
-		List<T> list = query(selection, selectionArgs, null, 1);
+	public FIELDS query(String selection, String[] selectionArgs) {
+		List<FIELDS> list = query(selection, selectionArgs, null, 1);
 		if (list != null && list.size() > 0) {
 			return list.get(0);
 		}
@@ -144,15 +144,15 @@ public abstract class BaseDBOperator<T extends BaseDBColumns, HELPER extends Bas
 		return null;
 	}
 
-	public T query(final String primaryKey) {
+	public FIELDS query(final String primaryKey) {
 		if (TextUtils.isEmpty(primaryKey)) {
 			return null;
 		}
-		return query(getTBHelper().getPrimaryKey() + "=?", new String[] { primaryKey });
+		return query(getTableHelper().getPrimaryKey() + "=?", new String[] { primaryKey });
 	}
 
 	/**
-	 * 获取数量
+	 * get Count
 	 * 
 	 * @param selection
 	 * @param selectionArgs
@@ -163,7 +163,7 @@ public abstract class BaseDBOperator<T extends BaseDBColumns, HELPER extends Bas
 		String[] projection = { " count(*)" };
 		String orderBy = null;
 		if (limit > 0) {
-			orderBy = getTBHelper().getDefaultSortOrder() + " limit " + limit;
+			orderBy = getTableHelper().getDefaultSortOrder() + " limit " + limit;
 		}
 
 		Cursor c = getContentResolver().query(getUri(), projection, selection, selectionArgs, orderBy);
@@ -175,23 +175,36 @@ public abstract class BaseDBOperator<T extends BaseDBColumns, HELPER extends Bas
 		return count;
 	}
 
+	/**
+	 * get all count
+	 * 
+	 * @param selection
+	 * @param selectionArgs
+	 * @return
+	 */
 	public int getCount(String selection, String[] selectionArgs) {
 		return getCount(selection, selectionArgs, -1);
 	}
 
-	public boolean hasColumn(final String primaryKey) {
+	/**
+	 * is exist
+	 * 
+	 * @param primaryKey
+	 * @return
+	 */
+	public boolean isExist(final String primaryKey) {
 		if (TextUtils.isEmpty(primaryKey)) {
 			return false;
 		}
 
-		return getCount(getTBHelper().getPrimaryKey() + "=?", new String[] { primaryKey }, 1) > 0;
+		return getCount(getTableHelper().getPrimaryKey() + "=?", new String[] { primaryKey }, 1) > 0;
 	}
 
 	protected Context getContext() {
 		return this.mContext;
 	}
 
-	public HELPER getTBHelper() {
+	public HELPER getTableHelper() {
 		return this.mHelper;
 	}
 
@@ -201,9 +214,9 @@ public abstract class BaseDBOperator<T extends BaseDBColumns, HELPER extends Bas
 
 	public abstract Uri getUri();
 
-	protected abstract List<T> createColumns(final Cursor c);
+	protected abstract List<FIELDS> createColumns(final Cursor c);
 
-	public T get(T condition) {
+	public FIELDS get(FIELDS condition) {
 		if (condition == null) {
 			return null;
 		}
@@ -214,7 +227,7 @@ public abstract class BaseDBOperator<T extends BaseDBColumns, HELPER extends Bas
 		return query(s.selection, s.selectionArgs);
 	}
 
-	public long update(T updateData, T condition) {
+	public long update(FIELDS updateData, FIELDS condition) {
 		if (updateData == null) {
 			return -1;
 		}
