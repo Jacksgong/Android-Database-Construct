@@ -7,7 +7,7 @@ import android.net.Uri;
  * 
  * @author Jacks gong
  * @data 2014-7-20 下午3:56:47
- * @Describe
+ * @Describe 数据表规范
  */
 public abstract class BaseTableHelper {
 
