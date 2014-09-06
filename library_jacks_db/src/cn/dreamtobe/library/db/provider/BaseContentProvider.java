@@ -18,7 +18,7 @@ import android.text.TextUtils;
 import android.util.SparseArray;
 
 /**
- * 描述:抽象ContentProvider，实现了数据库创建功能
+ * 描述:抽象ContentProvider，数据库规范
  * 
  * @author Jacks gong
  * @since 2014-6-20 上午11:47:26
