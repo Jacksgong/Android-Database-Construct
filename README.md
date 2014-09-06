@@ -177,3 +177,6 @@ ps: 目前架构基于ContentProvier
     	}
     
     }
+
+
+[Jacks Blog](http://blog.dreamtobe.cn)
