@@ -13,7 +13,7 @@ ps: 目前架构基于ContentProvier
  1. BaseContentProvider  负责数据库的规范
  2. BaseTableFields 规范数据表 字段(默认字段：_id, createAt, modifiedAt)
  3. BaseTableHelper 负责数据表 规范(表名、主键、默认查询结果排序、表创建、表升级)
- 4. BaseTableOperator 提供常用数据表的操作以及操作规范(插入、更新、删除、搜索、数量、是否存在）
+ 4. BaseTableOperator 提供常用数据表的操作以及操作规范(某人已带功能：插入、更新、删除、搜索、数量、是否存在）
  5. CustomTableHelper 常用表规范(默认查询结果排列顺序、默认主键）
 
 通过Sample来介绍使用
@@ -141,7 +141,7 @@ ps: 目前架构基于ContentProvier
     
     }
 
-####**4. UserInfo表操作**
+####**4. UserInfo表操作**(实现下面，就已经带有了这些功能：插入、更新、删除、搜索、数量、是否存在)
 
     public class UserInfoOperator extends BaseTableOperator<UserInfoFields, UserInfoHelper> {
     
